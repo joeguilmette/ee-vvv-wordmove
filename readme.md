@@ -1,5 +1,4 @@
 #Wordpress Notes
-___
 
 ##Nginx
 
@@ -13,7 +12,6 @@ ___
 
 - make sure it gets mounted on startup by adding `/swapfile none swap defaults 0 0` on a new line in `$ sudo vim /etc/fstab`
 
-___
 ##Migrating WordPress
 ###Telling WP the new site url via wp-cli
 - `$ wp option update home 'http://example.com'`
@@ -25,7 +23,6 @@ ___
 - get the remote db `$ scp [remote_dump.sql] #sshuser@#host:/path/`
 - import the remote db `$ mysql -u [username] -p [local_db_name] < [remote_dump.sql]`
 
-___
 ##Hardening WordPress
 
 ###Move wp-config.php back a dir out of the site root
