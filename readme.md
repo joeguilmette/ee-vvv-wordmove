@@ -1,51 +1,63 @@
-#How to run the optimal WordPress local, staging and production stack
-Using VVV for local development and EasyEngine (Nginx, HHVM and Percona) in staging and production.
+#Using HHVM, Nginx and Wordpress Locally and in Production
+A step by step guide to:
 
-#VVV and OSX
-Use VVV and auto-site-setup to create a new WordPress installation (**TO DO**)
+- Configure a local development environment with easy to set up Wordpress installations. 
+- Quickly provision staging and production servers, complete with one-line Wordpress installation and configuration.
+- Push and pull Wordpress installations, database and all, between local, staging and production environments.
+- Optimize and harden Wordpress with very little configuration.
 
-- Use [HHVVVM](https://github.com/johnjamesjacoby/hhvvvm) with VVV for HHVM support
-- Use [auto-site-setup](https://github.com/joeguilmette/auto-site-setup) to create new local WordPress installs and to provision your Vagrant box with Wordmove and other useful tools not included in VVV
+#Local development with VVV and OSX
+Use [VVV](https://github.com/Varying-Vagrant-Vagrants/VVV) and [auto-site-setup](https://github.com/joeguilmette/auto-site-setup) to create an easily replicated local development environment with multiple Wordpress installs.
+
+- Follow the instructions over at [VVV](https://github.com/Varying-Vagrant-Vagrants/VVV) to get VirtualBox, Vagrant and VVV going. You can hold off on running `$ vagrant up` for now.
+- Use [HHVVVM](https://github.com/johnjamesjacoby/hhvvvm) with VVV for HHVM support.
+- Use [auto-site-setup](https://github.com/joeguilmette/auto-site-setup) to create new local WordPress installs and to provision your Vagrant box with Wordmove and other useful tools not included in VVV.
 	- Create a folder `vvv/www/domain.com/` and add the three files, `vvv-hosts`, `vvv-init.sh` and `vvv-nginx.conf`.
 	- Modify each of them to fit your project.
-		- Be careful with `vvv-init.sh` and make sure you read it over and edit all the little details. The good news is you can use wp-cli in there to do whatever the fuck you want. You can even do some fun bash stuff, like clone in a theme, or whatever.
-		- In `vvv-nginx.conf` I've defaulted to use HHVM. You can comment that line out and switch to php5-fpm if you like.
-	- If vagrant is up, run `$ vagrant reload --provision`, or just `$ vagrant up --provision` and let it run and it'll create all the sites you've configured.
-	- It takes 5-10 mins, longer if it's your first time running the script. It'll have to download a few gigs of files.
-	- Once it's up, you can go to whatever domain you've set in the auto-site-setup files and get going.
-	- **Congrats on getting your local environment going.**
+	- Be careful with `vvv-init.sh` and make sure you read it over and edit all the little details. The good news is you can use wp-cli in there to do whatever the fuck you want. You can even do some fun bash stuff, like clone in a theme, or whatever.
+	- In `vvv-nginx.conf` I've defaulted to use HHVM. You can comment that line out and switch to php5-fpm if you like.
+- If vagrant is up, run `$ vagrant reload --provision`, or just `$ vagrant up --provision` and let it run and it'll create all the sites you've configured.
+- It takes 5-10 mins, longer if it's your first time running the script. It'll have to download a few gigs of files.
+- Once it's up, you can go to whatever domain you've set in the auto-site-setup files and get going.
+- **Congrats on getting your local environment going.**
 
+#Staging and productions servers with Ubuntu and EasyEngine
+EasyEngine provides a full Wordpress stack along with one line Wordpress installation and configuration. This guide was written using Ubuntu 14.04, so YMMV with other versions.
 
-#Setting up and securing Ubuntu 14.04 on DigitalOcean with EasyEngine
-- Create a 14.04 Droplet
-	- I use two one for staging, another for production. My clients are US based, but I am based in Asia. The US regions have high lag times and I deal more with my staging than production server.
+##Setting up and securing Ubuntu 14.04 on DigitalOcean
+- Create a 14.04 Droplet.
 - Follow the [initai server setup guide](https://www.digitalocean.com/community/tutorials/initial-server-setup-with-ubuntu-14-04).
 - [Configure ufw](https://www.digitalocean.com/community/tutorials/how-to-setup-a-firewall-with-ufw-on-an-ubuntu-and-debian-cloud-server).
 - [Configure fail2ban](https://www.digitalocean.com/community/tutorials/how-to-install-and-use-fail2ban-on-ubuntu-14-04).
+- Run `$ sudo poweroff` and create a Snapshot on Digital Ocean.
+- If you use two servers, one for staging and another for production, you can create your second server using this Snapshot to save some time.
+
+
+##Installing and configuring EasyEngine
 - Install EasyEngine `$ wget -qO ee rt.cx/ee && sudo bash ee` and maybe even [RTFM](https://github.com/rtCamp/easyengine).
+- Provision your server with`$ ee stack install`.
 
-
-#Using EasyEngine in staging/production
+##Creating new Wordpress installations in production
 - Create a new site with `$ sudo ee site create domain.com --wpfc`
-- Configure DNS
-	- One A record to link domain.com to your server: `A @ 1.1.1.1`
-	- One wildcard CNAME for magical reasons I don't understand: `CNAME * domain.com`
+- Configure DNS over at Digital Ocean.
+	- One A record to link domain.com to your server: `A @ 1.1.1.1`.
+	- One wildcard CNAME for magical reasons I don't understand: `CNAME * domain.com`.
 	- One CNAME per subdomain: `CNAME subdomain domain.com` will link subdomain.domain.com to the server IP listed in your A record.
 
 
 #Migrating WordPress from one of your local Varying Vagrant Vagrants to your remote Digital Ocean server
-Wordmove is the easiest way to automate this process.
+Wordmove is the easiest way to automate this process. It is based on Capistrano, and uses rsync to push or pull complete Wordpress installs between two environments with simple commands like `$ wordmove pull --database --environment=staging` or `$ wordmove push --theme --environment=production`. Good stuff.
 
 ##Using Wordmove
-So this is kind of a pain with EasyEngine because it locks down /var/www pretty well. Nginx is run with the user www-data which can't do much. It does not have a shell, and in fact it should not have one. But in order to use Wordmove, the easiest way is to just give it one.
+So it is kind of a pain to get Wordmove to play nice with EasyEngine, only because EasyEngine locks down /var/www pretty well. Nginx is run with the user www-data which can't do much. It does not have a shell, and in fact it should not have one. But in order to use Wordmove, the easiest way is to just give it one.
 
 My solution is to open up www-data, use Wordmove, and then lock down www-data and everything in /var/www.
 
 ###Installing Wordmove
-My [auto-site-setup](https://github.com/joeguilmette/auto-site-setup) fork has a `pre-provision.sh` file. If you dump it into `vvv/provision` it'll get installed next time you provision vvv.
+My [auto-site-setup](https://github.com/joeguilmette/auto-site-setup) fork has a `pre-provision.sh` file. If you dump it into `vvv/provision` Wordmove will get installed next time you provision vvv. There are some other tools in there as well that you can comment out if you like.
 
 ###Configuring www-data to be Wordmove compatible
-- Add an alias to give www-data a shell with `$ alias openitup='sudo usermod -s /bin/bash www-data'`. Now by running `$ openitup`, www-data has shell access. Run this now.
+- Add an alias to give www-data a shell with `$ alias openitup='sudo usermod -s /bin/bash www-data'`. Now by running `$ openitup` www-data has shell access. Run this now.
 - Give www-data a password with `$ sudo passwd www-data`
 - Create some ssh keys for www-data with `$ su - www-data ssh-keygen -t rsa -C "your_email@example.com"`. This is a huge pain in the ass, but it's just permissions. In the end, you should have `/var/www/.ssh` with three files, `authorized_keys`, `id_rsa` and `id_rsa.pub`. Permissions for these files after creation is important, but [my lockdown script](https://github.com/joeguilmette/lockdown) will take care of it.
 - Next, run `$ vagrant ssh` from your vvv folder. This will ssh you into the vvv vm you've set up.
