@@ -20,7 +20,7 @@ Use [VVV](https://github.com/Varying-Vagrant-Vagrants/VVV) and [auto-site-setup]
 - **Congrats on getting your local environment going.**
 
 #Staging and productions servers with Ubuntu and EasyEngine
-EasyEngine provides a full Wordpress stack along with one line Wordpress installation and configuration. This guide was written using Ubuntu 14.04, so YMMV with other versions.
+EasyEngine provides a full Wordpress stack along with one line Wordpress installation and configuration. This guide was written using Ubuntu 14.04x64, so YMMV with other versions.
 
 ##Setting up and securing Ubuntu 14.04x64 on DigitalOcean
 - Create a **14.04x64** Droplet.
