@@ -1,4 +1,4 @@
-#Using HHVM, Nginx and Wordpress Locally and in Production
+#Using VVV, Wordmove and EasyEngine together
 A step by step guide to:
 
 - Configure a local development environment with easy to set up Wordpress installations. 
@@ -10,7 +10,6 @@ A step by step guide to:
 Use [VVV](https://github.com/Varying-Vagrant-Vagrants/VVV) and [auto-site-setup](https://github.com/joeguilmette/auto-site-setup) to create an easily replicated local development environment with multiple Wordpress installs.
 
 - Follow the instructions over at [VVV](https://github.com/Varying-Vagrant-Vagrants/VVV) to get VirtualBox, Vagrant and VVV going. You can hold off on running `$ vagrant up` for now.
-- Use [HHVVVM](https://github.com/johnjamesjacoby/hhvvvm) with VVV for HHVM support.
 - Use [auto-site-setup](https://github.com/joeguilmette/auto-site-setup) to create new local WordPress installs and to provision your Vagrant box with Wordmove and other useful tools not included in VVV.
 	- Create a folder `vvv/www/domain.com/` and add the three files, `vvv-hosts`, `vvv-init.sh` and `vvv-nginx.conf`.
 	- Modify each of them to fit your project.
@@ -24,8 +23,8 @@ Use [VVV](https://github.com/Varying-Vagrant-Vagrants/VVV) and [auto-site-setup]
 #Staging and productions servers with Ubuntu and EasyEngine
 EasyEngine provides a full Wordpress stack along with one line Wordpress installation and configuration. This guide was written using Ubuntu 14.04, so YMMV with other versions.
 
-##Setting up and securing Ubuntu 14.04 on DigitalOcean
-- Create a 14.04 Droplet.
+##Setting up and securing Ubuntu 14.04x64 on DigitalOcean
+- Create a **14.04x64** Droplet.
 - Follow the [initai server setup guide](https://www.digitalocean.com/community/tutorials/initial-server-setup-with-ubuntu-14-04).
 - [Configure ufw](https://www.digitalocean.com/community/tutorials/how-to-setup-a-firewall-with-ufw-on-an-ubuntu-and-debian-cloud-server).
 - [Configure fail2ban](https://www.digitalocean.com/community/tutorials/how-to-install-and-use-fail2ban-on-ubuntu-14-04).
@@ -35,7 +34,8 @@ EasyEngine provides a full Wordpress stack along with one line Wordpress install
 
 ##Installing and configuring EasyEngine
 - Install EasyEngine `$ wget -qO ee rt.cx/ee && sudo bash ee` and maybe even [RTFM](https://github.com/rtCamp/easyengine).
-- Provision your server with`$ ee stack install`.
+- Provision your server with`$ sudo ee stack install`.
+- Configure the EasyEngine Wordpress defaults in `$ sudo vim /etc/easyengine/ee.conf`. A default username, password, and valid email address are important.
 
 ##Creating new Wordpress installations in production
 - Create a new site with `$ sudo ee site create domain.com --wpfc`
@@ -56,10 +56,12 @@ My solution is to open up www-data, use Wordmove, and then lock down www-data an
 ###Installing Wordmove
 My [auto-site-setup](https://github.com/joeguilmette/auto-site-setup) fork has a `pre-provision.sh` file. If you dump it into `vvv/provision` Wordmove will get installed next time you provision vvv. There are some other tools in there as well that you can comment out if you like.
 
-###Configuring www-data to be Wordmove compatible
+###Configuring www-data to play nice with Wordmove
+This is a pretty hacky and possibly insecure way to handle this issue. If you have a better method, let me know.
+
 - Add an alias to give www-data a shell with `$ alias openitup='sudo usermod -s /bin/bash www-data'`. Now by running `$ openitup` www-data has shell access. Run this now.
 - Give www-data a password with `$ sudo passwd www-data`
-- Create some ssh keys for www-data with `$ su - www-data ssh-keygen -t rsa -C "your_email@example.com"`. This is a huge pain in the ass, but it's just permissions. In the end, you should have `/var/www/.ssh` with three files, `authorized_keys`, `id_rsa` and `id_rsa.pub`. Permissions for these files after creation is important, but [my lockdown script](https://github.com/joeguilmette/lockdown) will take care of it.
+- Create some ssh keys for www-data with `$ su - www-data -c ssh-keygen -t rsa -C "your_email@example.com"`. This is a huge pain in the ass, but it's just permissions. In the end, you should have `/var/www/.ssh` with three files, `authorized_keys`, `id_rsa` and `id_rsa.pub`. Permissions for these files after creation is important, but [my lockdown script](https://github.com/joeguilmette/lockdown) will take care of it.
 - Next, run `$ vagrant ssh` from your vvv folder. This will ssh you into the vvv vm you've set up.
 - Create some ssh keys in your vagrant box with `$ ssh-keygen -t rsa -C "your_email@example.com"`
 - Now you need to send your ssh key from Vagrant to the remote www-data user via `$ cat ~/.ssh/id_rsa.pub | ssh www-data@1.1.1.1 'cat >> .ssh/authorized_keys'`.
@@ -166,13 +168,111 @@ There are [some cool resources](https://github.com/davidsonfellipe/awesome-wpo) 
 
 Caching aside, you're going to have to execute some PHP eventually. HHVM is crazy good for doing that fast.
 
-##Installing HHVM alongside EasyEngine
+##HHVM locally with VVV
+- Use [HHVVVM](https://github.com/johnjamesjacoby/hhvvvm) with VVV for HHVM support.
+- Mod vvv-nginx.conf to use HHVM in VVV.
 
-- Install HHVM (**TO DO**)
-	- [This guide is pretty solid](https://rtcamp.com/tutorials/php/hhvm-with-fpm-fallback/).
-	- Throws an error on `$ sudo /usr/share/hhvm/install_fastcgi.sh`
-	- Need to create a symlink for hhvm.conf in /etc/nginx/conf.d and run `$ sudo nginx -t` to make sure the confs work
-	- [This was useful](https://github.com/rtCamp/easyengine/issues/199).
+##HHVM in production with EasyEngine
+**EasyEngine was updated and this guide no longer works.**
+
+HHVM is an insanely fast PHP processor. Generally, I keep both HHVM and php5-fpm installed. HHVM isn't the best at letting you know something is wrong, you pretty much just get a white screen of death. I keep a .conf file in `/etc/nginx/conf.d` that I can include into a site to disable HHVM and use php5-fpm if I think HHVM might be the problem. Usually the only issues I've had are with plugins - HHVM is fully compatible with Wordpress core.
+
+Also I've had issues with wp-cli.
+
+Hopefully HHVM will make it into EasyEngine master soon enough and this will all be replaced with an ee flag.
+
+###Installing HHVM alongside EasyEngine
+
+- Install HHVM
+
+```
+$ sudo apt-get update
+$ wget -O - http://dl.hhvm.com/conf/hhvm.gpg.key | sudo apt-key add -
+$ echo deb http://dl.hhvm.com/ubuntu trusty main | sudo tee /etc/apt/sources.list.d/hhvm.list
+$ sudo apt-get update
+$ sudo apt-get install hhvm
+```
+
+- HHVM has a handy script to plug itself into Nginx `$ sudo /usr/share/hhvm/install_fastcgi.sh`, however EasyEngine has some fastcgi settings that conflict, and you will likely get a `Detected clashing configuration` error.
+
+###Manually hooking HHVM into FastCGI
+Wow.
+
+- Step 1
+```
+$ sudo grep -lr "location ~ .php" . | sudo xargs sed -i -e 's/\.php\$/\\\.\(hh\|php\)\$/g'
+$ sudo grep -lr "location ~ \\\\\.php\\$" . | sudo xargs sed -i -e 's/\\\.php\$/\\\.\(hh\|php\)\$/g'
+```
+
+- Add `fastcgi_keep_conn on;` inside `/etc/nginx/conf.d/fastcgi.conf`
+
+- Inside `/etc/nginx/hhvm.conf`:
+
+```
+location ~ \.(hh|php)$ {  
+    fastcgi_keep_conn on;  
+    fastcgi_pass   127.0.0.1:8000;  
+    fastcgi_index  index.php;  
+    fastcgi_param  SCRIPT_FILENAME $document_root$fastcgi_script_name;  
+    include        fastcgi_params;  
+} 
+```
+
+- Inside `/etc/hhvm/server.ini` change `hhvm.server.port`  to `8000`.
+
+- Near the end of `/etc/hhvm/php.ini` add:
+
+```
+hhvm.log.header = true
+hhvm.log.natives_stack_trace = true
+```
+
+- Delete everything inside `/etc/nginx/conf.d/upstream.conf` and replace with:
+
+
+```
+# Common upstream settings
+upstream php {
+# server unix:/run/php5-fpm.sock;
+server 127.0.0.1:8000;
+server 127.0.0.1:9000 backup;
+}
+upstream debug {
+# Debug Pool
+server 127.0.0.1:9001;
+}
+```
+
+- In `/etc/nginx/sites-available/domain.com` add `include hhvm.conf; ` in with the other `include`s.
+
+- Finally, in `/etc/nginx/commong/wpfc.conf` comment out the entire `location ~ \.(hh|php)` block, like so:
+
+```
+#location ~ \.(hh|php)$ {  
+#       try_files $uri =404;  
+#       include fastcgi_params;  
+#       fastcgi_pass php;  
+#  
+#       fastcgi_cache_bypass $skip_cache;  
+#       fastcgi_no_cache $skip_cache;  
+#  
+#       fastcgi_cache WORDPRESS;  
+#}  
+```
+
+- Now, restart everything.
+
+```
+$ sudo service hhvm restart
+$ sudo php5-fpm -t && sudo service php5-fpm restart
+$ sudo nginx -t && sudo service nginx restart
+```
+
+Handy alias for restarting everything: `$ alias rstack='sudo service hhvm restart && sudo php5-fpm -t && sudo service php5-fpm restart && sudo nginx -t && sudo service nginx restart'`
+
+- Last step, verify that you have HHVM up and running. Run `$ curl -I domain.com` and look for `X-Powered-By: HHVM/3.3.1`
+
+- Theoretically this will fallback to php5-fpm when HHVM fails, but I don't know how to test that.
 
 ##Enabling a swap file
 EasyEngine should handle this for you. If you run into memory issues later, this is a good way out aside from just buying more RAM.
