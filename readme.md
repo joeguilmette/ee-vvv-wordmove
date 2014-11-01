@@ -1,4 +1,4 @@
-#VVV, Wordmove and EasyEngine as a full Wordpress development stack
+#VVV, Wordmove and EasyEngine: A Wordpress development stack
 A step by step guide to:
 
 - Configure a local development environment with easy to set up Wordpress installations. 
