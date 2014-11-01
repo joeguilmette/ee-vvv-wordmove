@@ -60,11 +60,14 @@ This is a pretty hacky and possibly insecure way to handle this issue. If you ha
 
 - Add an alias to give www-data a shell with `$ alias openitup='sudo usermod -s /bin/bash www-data'`. Now by running `$ openitup` www-data has shell access. Run this now.
 - Give www-data a password with `$ sudo passwd www-data`
-- Create some ssh keys for www-data with `$ su - www-data -c ssh-keygen -t rsa -C "your_email@example.com"`. This is a huge pain in the ass, but it's just permissions. In the end, you should have `/var/www/.ssh` with three files, `authorized_keys`, `id_rsa` and `id_rsa.pub`. Permissions for these files after creation is important, but [my lockdown script](https://github.com/joeguilmette/lockdown) will take care of it.
+- Create a folder called `$ sudo mkdir /var/www/.ssh/`
+- Give www-data ownership of `/var/www/.ssh/` with `$ sudo chown -R www-data:www-data /var/www/.ssh/`
+- Create some ssh keys for www-data with `$ su - www-data -c "ssh-keygen -t rsa -C 'your_email@example.com'"`. This is a huge pain in the ass, but it's just permissions. In the end, you should have `/var/www/.ssh` with three files, `authorized_keys`, `id_rsa` and `id_rsa.pub`. Permissions for these files after creation is important, but [my lockdown script](https://github.com/joeguilmette/lockdown) will take care of it.
 - Next, run `$ vagrant ssh` from your vvv folder. This will ssh you into the vvv vm you've set up.
 - Create some ssh keys in your vagrant box with `$ ssh-keygen -t rsa -C "your_email@example.com"`
 - Now you need to send your ssh key from Vagrant to the remote www-data user via `$ cat ~/.ssh/id_rsa.pub | ssh www-data@1.1.1.1 'cat >> .ssh/authorized_keys'`.
 - At this point your vagrant box should be able to ssh into www-data@1.1.1.1 without being asked for a password. Give it a shot by running `$ ssh www-data@1.1.1.1` and see if it lets you in without prompting you for a password. If it asks your for a password, exercise that google muscle.
+- **As of right now, www-data is wide open. You need to close it down with [my lockdown script](https://github.com/joeguilmette/lockdown).**
 
 
 ###Configuring Wordmove
@@ -137,12 +140,23 @@ Sometimes you gotta do it...
 - Manually specified in wp-config.php
 
 ##Change wp-content folder
+- Manually change the name of your wp-content folder
 - Add the following to the top of wp-config.php
 
 ```
- define( 'WP_CONTENT_DIR', dirname(__FILE__) . '/wp-content' ); // sometimes this doesn't work
- define( 'WP_CONTENT_DIR', '/var/www/domain.com/htdocs/wp-content'); // and I have to use this
- define( 'WP_CONTENT_URL', 'http://domain.com/wp-content' );
+define( 'WP_CONTENT_URL', 'http://domain.com/new-content-folder' );  
+define( 'WP_CONTENT_DIR', '/var/www/domain.com/htdocs/new-content-folder' );  
+```
+
+- Edit your Movefile to add:
+
+```
+  paths: # you can customize wordpress internal paths
+    wp_content: "new-content-folder"
+    uploads: "new-content-folder/uploads"
+    plugins: "new-content-folder/plugins"
+    themes: "new-content-folder/themes"
+    languages: "new-content-folder/languages"
 ```
 
 ##Permissions
