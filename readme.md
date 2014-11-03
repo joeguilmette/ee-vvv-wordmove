@@ -25,11 +25,68 @@ EasyEngine provides a full Wordpress stack along with one line Wordpress install
 ##Setting up and securing Ubuntu 14.04x64 on DigitalOcean
 - Create a **14.04x64** Droplet.
 - Follow the [initai server setup guide](https://www.digitalocean.com/community/tutorials/initial-server-setup-with-ubuntu-14-04).
-- [Configure ufw](https://www.digitalocean.com/community/tutorials/how-to-setup-a-firewall-with-ufw-on-an-ubuntu-and-debian-cloud-server).
-- [Configure fail2ban](https://www.digitalocean.com/community/tutorials/how-to-install-and-use-fail2ban-on-ubuntu-14-04).
-- Run `$ sudo poweroff` and create a Snapshot on Digital Ocean.
-- If you use two servers, one for staging and another for production, you can create your second server using this Snapshot to save some time.
+- [Configure ufw](https://www.digitalocean.com/community/tutorials/how-to-setup-a-firewall-with-ufw-on-an-ubuntu-and-debian-cloud-server). Make sure to allow www, ssh, smtp and anything else you may use.
+- [Configure fail2ban](https://www.digitalocean.com/community/tutorials/how-to-install-and-use-fail2ban-on-ubuntu-14-04). This should be completed after you install EasyEngine and create a Wordpress site (or at least a test site). If you don't then when you turn on filters for smtp, nginx, mysql and php it will throw errors. Also, you're going to need to rejigger the log file paths in the jail.local filters so they match EasyEngine's defaults.
 
+###Conifiguring Monit
+Monit will monitor system resources and services, do complicated things (like perform complicated tests, restart services, etc), and then send you an email.
+
+- [Install Monit.](https://www.digitalocean.com/community/tutorials/how-to-install-and-configure-monit)
+- This should be done after EasyEngine is installed, otherwise there won't be any services to monitor or any way to send alerts.
+- I use the following in conjunction with EasyEngine:
+
+```
+check system 1.1.1.1  
+  if loadavg (1min) > 4 then alert  
+  if loadavg (5min) > 2 then alert  
+  if memory usage > 75% then alert  
+  if swap usage > 25% then alert  
+  if cpu usage (user) > 70% then alert  
+  if cpu usage (system) > 30% then alert  
+  if cpu usage (wait) > 20% then alert    
+      
+# EasyEngine Monit settings  
+check process nginx with pidfile /var/run/nginx.pid  
+        start program = "/etc/init.d/nginx start"  
+        stop program = "/etc/init.d/nginx stop"  
+  
+check process mysql with pidfile /var/run/mysqld/mysqld.pid  
+        start program = "/etc/init.d/mysql start"  
+        stop program = "/etc/init.d/mysql stop"  
+  
+check process php with pidfile /var/run/php5-fpm.pid  
+        start program = "/etc/init.d/php5-fpm start"  
+        stop program = "/etc/init.d/php5-fpm stop"  
+  
+check process fail2ban with pidfile /var/run/fail2ban/fail2ban.pid  
+        start program = "/etc/init.d/fail2ban start"  
+        stop program = "/etc/init.d/fail2ban stop"  
+  
+check filesystem rootfs with path /dev/vda1  
+        if space usage > 85% for 3 cycles then alert
+```
+
+- And then this to set my email settings:
+
+```
+set mailserver smtp.gmail.com port 587
+        username "gmail_username" password "password" # this is the gmail account that will send the alert
+        using tlsv1 with timeout 30 seconds
+set alert email@address.com with reminder on 15 cycles # this address will receive the alert
+```
+
+##DigitalOcean Snapshots
+Once the above is complete, I like to create a snapshot. This makes deploying new production servers a breeze
+
+###Create Snapshot
+
+- Run `$ sudo poweroff` and create a Snapshot on Digital Ocean.
+
+###Deploy a Snapshot
+
+- Create a Droplet on DigitalOcean, selecting an appropriate Snapshot
+- Change your root and user password
+- Change relevant, host specific setting
 
 ##Installing and configuring EasyEngine
 - Install EasyEngine `$ wget -qO ee rt.cx/ee && sudo bash ee` and maybe even [RTFM](https://github.com/rtCamp/easyengine).
@@ -42,6 +99,7 @@ EasyEngine provides a full Wordpress stack along with one line Wordpress install
 	- One A record to link domain.com to your server: `A @ 1.1.1.1`.
 	- One wildcard CNAME for magical reasons I don't understand: `CNAME * domain.com`.
 	- One CNAME per subdomain: `CNAME subdomain domain.com` will link subdomain.domain.com to the server IP listed in your A record.
+
 
 
 #Migrating WordPress from one of your local Varying Vagrant Vagrants to your remote Digital Ocean server
@@ -62,7 +120,7 @@ This is a pretty hacky and possibly insecure way to handle this issue. If you ha
 - Give www-data a password with `$ sudo passwd www-data`
 - Create a folder called `$ sudo mkdir /var/www/.ssh/`
 - Give www-data ownership of `/var/www/.ssh/` with `$ sudo chown -R www-data:www-data /var/www/.ssh/`
-- Create some ssh keys for www-data with `$ su - www-data -c "ssh-keygen -t rsa -C 'your_email@example.com'"`. This is a huge pain in the ass, but it's just permissions. In the end, you should have `/var/www/.ssh` with three files, `authorized_keys`, `id_rsa` and `id_rsa.pub`. Permissions for these files after creation is important, but [my lockdown script](https://github.com/joeguilmette/lockdown) will take care of it.
+- Create some ssh keys for www-data with `$ su - www-data -c "ssh-keygen -t rsa -C 'your_email@example.com'"`. You will be prompted for the password for www-data. Permissions for these ssh files after creation is important, but [my lockdown script](https://github.com/joeguilmette/lockdown) will take care of it.
 - Next, run `$ vagrant ssh` from your vvv folder. This will ssh you into the vvv vm you've set up.
 - Create some ssh keys in your vagrant box with `$ ssh-keygen -t rsa -C "your_email@example.com"`
 - Now you need to send your ssh key from Vagrant to the remote www-data user via `$ cat ~/.ssh/id_rsa.pub | ssh www-data@1.1.1.1 'cat >> .ssh/authorized_keys'`.
@@ -177,13 +235,17 @@ These are important in securing any publicly facing server.
 #Optimizing WordPress
 There are [some cool resources](https://github.com/davidsonfellipe/awesome-wpo) for getting optimization in Wordpress right. EasyEngine is a great start. If you create sites with the `--wpfc` flag you'll get fast-cgi caching out of the box. And EasyEngine offers some other nifty caching tools to get things going.
 
-##Enabling a swap file
-EasyEngine should handle this for you. If you run into memory issues later, this is a good way out aside from just buying more RAM.
+##Solving memory issues with a swap file
+EasyEngine says they handle this for you. However, even with 1gb of ram, I've run into issues with MySQL like this `[ERROR] InnoDB: Cannot allocate memory for the buffer pool` which will crash MySQL and throw `Database connection errors` on page load. Funny, if the error still renders in the browser after MySQL is back up, refresh your cache with `sudo ee clean all`.
 
-- Create the swapfile `$ fallocate -l 1024M /swapfile`.
+Anyway, if you run into memory issues, try creating a swap file before just buying for RAM.
 
-- Set those perms `$ sudo chmod 600 /swapfile && mkswap /swapfile`.
+- Create the swapfile `$ sudo fallocate -l 1024M /swapfile`.
 
-- Start the swap `$ swapon /swapfile`.
+- Set those perms `$ sudo chmod 600 /swapfile && sudo mkswap /swapfile`.
+
+- Start the swap `$ sudo swapon /swapfile`.
 
 - Make sure it gets mounted on startup by adding `/swapfile none swap defaults 0 0` on a new line in `$ sudo vim /etc/fstab`
+
+- If you run in to issues specific to InnoDB, you can also increase the cache size to see if that helps.
