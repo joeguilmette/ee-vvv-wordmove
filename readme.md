@@ -123,7 +123,7 @@ This is a pretty hacky and possibly insecure way to handle this issue. If you ha
 - Create some ssh keys for www-data with `$ su - www-data -c "ssh-keygen -t rsa -C 'your_email@example.com'"`. You will be prompted for the password for www-data. Permissions for these ssh files after creation is important, but [my lockdown script](https://github.com/joeguilmette/lockdown) will take care of it.
 - Next, run `$ vagrant ssh` from your vvv folder. This will ssh you into the vvv vm you've set up.
 - Create some ssh keys in your vagrant box with `$ ssh-keygen -t rsa -C "your_email@example.com"`
-- Now you need to send your ssh key from Vagrant to the remote www-data user via `$ cat ~/.ssh/id_rsa.pub | ssh www-data@1.1.1.1 'cat >> .ssh/authorized_keys'`.
+- Now you need to send your ssh key from Vagrant to the remote www-data user via `$ cat ~/.ssh/id_rsa.pub | ssh www-data@1.1.1.1 'cat >> .ssh/authorized_keys'`. If you have changed the ssh port, don't forget to specify that here.
 - At this point your vagrant box should be able to ssh into www-data@1.1.1.1 without being asked for a password. Give it a shot by running `$ ssh www-data@1.1.1.1` and see if it lets you in without prompting you for a password. If it asks your for a password, exercise that google muscle.
 - **As of right now, www-data is wide open. You need to close it down with [my lockdown script](https://github.com/joeguilmette/lockdown).**
 
