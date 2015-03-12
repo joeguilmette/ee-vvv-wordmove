@@ -95,7 +95,7 @@ Once the above is complete, I like to create a snapshot. This makes deploying ne
 
 - Create a Droplet on DigitalOcean, selecting an appropriate Snapshot
 - Change your user password
-- Change keys in ~/.ssh/id_rsa.pub
+- Reset keys in ~/.ssh/id_rsa.pub, check ~/.ssh/authorized_keys
 - Change relevant, host specific settings (for me, that's just the monit email template)
 - Test everything (fail2ban, check that monit can send email)
 
