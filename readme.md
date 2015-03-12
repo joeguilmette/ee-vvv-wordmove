@@ -94,8 +94,9 @@ Once the above is complete, I like to create a snapshot. This makes deploying ne
 ###Deploy a Snapshot
 
 - Create a Droplet on DigitalOcean, selecting an appropriate Snapshot
-- Change your root and user password
-- Change relevant, host specific setting
+- Change your user password
+- Change relevant, host specific settings (for me, that's just the monit email template)
+- Test everything (fail2ban, check that monit can send email)
 
 ##Installing and configuring EasyEngine
 - Install EasyEngine `$ wget -qO ee rt.cx/ee && sudo bash ee` and maybe even [RTFM](https://github.com/rtCamp/easyengine).
