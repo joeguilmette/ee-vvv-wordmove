@@ -24,7 +24,7 @@ EasyEngine provides a full Wordpress stack along with one line Wordpress install
 
 ##Setting up and securing Ubuntu 14.04x64 on DigitalOcean
 - Create a **14.04x64** Droplet.
-- Follow the [initai server setup guide](https://www.digitalocean.com/community/tutorials/initial-server-setup-with-ubuntu-14-04).
+- Follow the [initial server setup guide](https://www.digitalocean.com/community/tutorials/initial-server-setup-with-ubuntu-14-04).
 - [Configure ufw](https://www.digitalocean.com/community/tutorials/how-to-setup-a-firewall-with-ufw-on-an-ubuntu-and-debian-cloud-server). Make sure to allow www, ssh, smtp and anything else you may use.
 - [Configure fail2ban](https://www.digitalocean.com/community/tutorials/how-to-install-and-use-fail2ban-on-ubuntu-14-04). This should be completed after you install EasyEngine and create a Wordpress site (or at least a test site). If you don't then when you turn on filters for smtp, nginx, mysql and php it will throw errors. Also, you're going to need to rejigger the log file paths in the jail.local filters so they match EasyEngine's defaults.
 
@@ -73,6 +73,15 @@ set mailserver smtp.gmail.com port 587
         username "gmail_username" password "password" # this is the gmail account that will send the alert
         using tlsv1 with timeout 30 seconds
 set alert email@address.com with reminder on 15 cycles # this address will receive the alert
+
+set mail-format {
+        from: gmail_username@gmail.com
+        reply-to: gmail_username@gmail.com
+        subject: DOMAIN.COM ALERT: $SERVICE $EVENT at $DATE
+        message: Monit $ACTION $SERVICE at $DATE on $HOST: $DESCRIPTION.
+        Sincerely,
+                Your MonitRobot
+}
 ```
 
 ##DigitalOcean Snapshots
