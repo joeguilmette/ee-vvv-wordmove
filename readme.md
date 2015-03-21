@@ -135,6 +135,17 @@ What we're going to do is create a user for Wordmove and give it access to the f
 - Create some SSH keys with `su - wordmove -c "ssh-keygen -t rsa"`
 - Add you SSH keys from Vagrant to the wordmove user on your server by running `cat ~/.ssh/id_rsa.pub | ssh wordmove@1.1.1.1 'cat >> .ssh/authorized_keys'`. Remember to specify your port in the SSH command with `-p 1234` if necessary. Remember you're running that command from Vagrant.
 
+You'll need to run `$ sudo chmod -R g+rw /var/www/*/htdocs` every time you create a new site with EasyEngine. You can set an alias on your server with `alias perm = sudo chmod -R g+rw /var/www/*/htdocs`
+
+Or you can create a function in your local bash.rc to run the command:
+
+```
+function perm { ssh -p 1234 -t user@$1 "sudo chmod -R g+rw /var/www/*/htdocs" }
+export -f open
+```
+ 
+You would run that command with `$ perm 1.1.1.1`.
+
 ###Setting up your Movefile
 - Run `$ wordmove init` in your local WordPress root
 - `$ vim Movefile` and edit the local and remote sections appropriately.
