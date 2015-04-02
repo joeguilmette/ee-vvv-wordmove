@@ -125,26 +125,27 @@ My solution is to open up www-data, use Wordmove, and then lock down www-data an
 My [auto-site-setup](https://github.com/joeguilmette/auto-site-setup) fork has a `pre-provision.sh` file. If you dump it into `vvv/provision` Wordmove will get installed next time you provision vvv. There are some other tools in there as well that you can comment out if you like.
 
 ###Configuring your server to receive data via Wordmove
-What we're going to do is create a user for Wordmove and give it access to the files in the /var/www/ folder. This directory is owned by www-data, the user that Nginx uses.
+What we're going to do is create a user for Wordmove and give it access to the files in the /var/www/ folder. This directory is owned by www-data, the user that Nginx uses. We're going to change the group of those files to wordmove. Then we'll create some SSH keys so Wordmove can run locally and push files to your server.
 
-- Create a user and add it to the www-data group with `$ sudo useradd -G www-data wordmove`
+- Create a user with `$ sudo useradd wordmove`
 - Give it a password with `sudo passwd wordmove`.
-- Run `$ sudo chmod -R g+rw /var/www/*/htdocs` so that all users who are members of the www-data group can read and write all files in the htdocs directory.
+- Run `$ sudo chgrp wordmove /var/www/*/htdocs` so we can add write access for wordmove without giving it to Nginx's www-data user.
 - Create an SSH directory with `sudo mkdir -p /home/wordmove/.ssh`
 - Give to the wordmove user with `sudo chown -R wordmove:wordmove /home/wordmove/`
 - Create some SSH keys with `su - wordmove -c "ssh-keygen -t rsa"`
-- Add your SSH keys from Vagrant to the wordmove user on your server by running `cat ~/.ssh/id_rsa.pub | ssh wordmove@1.1.1.1 'cat >> .ssh/authorized_keys'`. Remember to specify your port in the SSH command with `-p 1234` if necessary. Remember you're running that command from Vagrant.
+- Add your SSH keys from Vagrant to the wordmove user on your server by running `cat ~/.ssh/id_rsa.pub | ssh wordmove@1.1.1.1 'cat >> .ssh/authorized_keys'cat`. Remember to specify your port in the SSH command with `-p 1234` if necessary. Remember you're running that command from Vagrant.
 
-You'll need to run `$ sudo chmod -R g+rw /var/www/*/htdocs` every time you create a new site with EasyEngine. You can set an alias on your server with `alias perm = sudo chmod -R g+rw /var/www/*/htdocs`
+You'll need to run `$ sudo chgrp wordmove /var/www/*/htdocs` every time you create a new site with EasyEngine. You can set an alias on your server with `alias wordfix = sudo chgrp wordmove /var/www/*/htdocs`
 
 Or you can create a function in your local bash.rc to run the command:
 
 ```
-function perm { ssh -p 1234 -t user@$1 "sudo chmod -R g+rw /var/www/*/htdocs" }
-export -f open
+function wordfix {
+    ssh -p 420 -t joe@$1 "sudo chgrp wordmove /var/www/*/htdocs"
+}
 ```
  
-You would run that command with `$ perm 1.1.1.1`.
+You would run that command with `$ wordfix 1.1.1.1`.
 
 ###Setting up your Movefile
 - Run `$ wordmove init` in your local WordPress root
@@ -160,9 +161,8 @@ This assumes that www-data has shell access, your local Movefile is properly con
 
 - Navigate to the local folder that has your Movefile
 - Run `$ wordmove push --all -e=server`. Change `-e=server` to whatever server you've set in your Movefile.
-	- If you're getting password prompts from Wordmove while things are pushing **then you need to send your sshkey to your server via `$ cat ~/.ssh/id_rsa.pub | ssh www-data@1.1.1.1 'cat >> .ssh/authorized_keys'`**. If that isn't working, then something is wrong with `/var/www/.ssh/authorized_keys` on your server. Fix it. Otherwise you won't be able to push/pull the db.
+	- If you're getting password prompts from Wordmove while things are pushing **then you need to send your sshkey to your server** via `$ cat ~/.ssh/id_rsa.pub | ssh www-data@1.1.1.1 'cat >> .ssh/authorized_keys'`, and remember to add a port with `-p 1234` if necessary. If that isn't working, then something is wrong with `/var/www/.ssh/authorized_keys` on your server. Fix it. Otherwise you won't be able to push/pull the db.
 - Verify that everything worked
-- After Wordmove is done, use [my lockdown script](https://github.com/joeguilmette/lockdown) to make sure the permissions are all good.
  
 ###Troubleshooting a borked migration
 
