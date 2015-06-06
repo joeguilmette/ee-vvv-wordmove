@@ -37,13 +37,13 @@ Monit will monitor system resources and services, do complicated things (like pe
 
 ```
 check system 1.1.1.1  
-  if loadavg (1min) > 4 then alert  
-  if loadavg (5min) > 2 then alert  
-  if memory usage > 75% then alert  
-  if swap usage > 25% then alert  
-  if cpu usage (user) > 70% then alert  
-  if cpu usage (system) > 30% then alert  
-  if cpu usage (wait) > 20% then alert    
+  if loadavg (1min) > 6 then alert  
+  if loadavg (5min) > 4 then alert  
+  if memory usage > 85% then alert  
+  if swap usage > 75% then alert  
+  if cpu usage (user) > 80% then alert  
+  if cpu usage (system) > 70% then alert  
+  if cpu usage (wait) > 60% then alert   
       
 # EasyEngine Monit settings  
 check process nginx with pidfile /var/run/nginx.pid  
