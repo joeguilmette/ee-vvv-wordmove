@@ -1,0 +1,4 @@
+# https://rvm.io/integration/vagrant
+
+config.vm.provision :shell, :path => "provision/install-rvm.sh",  :args => "stable"
+config.vm.provision :shell, :path => "provision/install-ruby.sh", :args => "2.0.0"

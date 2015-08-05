@@ -1,0 +1,46 @@
+# This is an example Movefile. You should definitely use `$ wordmove init` 
+# to create a new Movefile for your project. The big gotcha for EE is going
+# to be the rsync flags, so be aware.
+
+local:
+  vhost: "http://domain.dev"
+  wordpress_path: "/srv/www/make/wp-core" # use an absolute path here
+
+  database:
+    name: "domain"
+    user: "root"
+    password: "root"
+    host: "localhost"
+
+staging:
+    vhost: "http://domain.staging.com"
+    wordpress_path: "/var/www/domain.staging.com/htdocs" # use an absolute path here
+
+    database:
+        name: "domain_staging_com"
+        user: "easyengine_user"
+        password: "easyengine_password"
+        host: "localhost"
+
+    exclude:
+        - ".git/"
+        - ".gitignore"
+        - ".sass-cache/"
+        - "bin/"
+        - "tmp/*"
+        - "Gemfile*"
+        - "Movefile"
+        - "wp-config.php"
+        - "*.sql"
+        - "*/.git"
+        - "*/.gitignore"
+        - ".DS_Store"
+        - "*/.codekit-cache"
+
+  ssh:
+    host: "staging.com"
+    user: "root" # need to fix this
+    port: 420
+    # you have no idea the pain and suffering that went in to these rsync flags
+    rsync_options: "-og --chown=www-data:www-data --no-perms --chmod=ugo=rwX"
+
