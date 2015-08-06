@@ -18,8 +18,8 @@ else
 
 fi
 
-# set perms for gems so we can install a gem
-# sudo chown -R vagrant:vagrant /usr/local/rvm/gems/ruby-2.0.0*
+echo 'trying that weird vagrant use command'
+bash -l -c "rvm use --default --install 2.0.0"
 
 # wordmove install
 wordmove_install="$(gem list wordmove -i)"

@@ -7,13 +7,12 @@ A step by step guide to:
 - Optimize and harden Wordpress with very little configuration.
 
 #Local development with VVV and OSX
-Use [VVV](https://github.com/Varying-Vagrant-Vagrants/VVV) and [auto-site-setup](https://github.com/joeguilmette/auto-site-setup) to create an easily replicated local development environment with multiple Wordpress installs.
+Use [VVV](https://github.com/Varying-Vagrant-Vagrants/VVV) and [these provision scripts](https://github.com/joeguilmette/ee-vvv-wordmove/tree/master/vvv) to create an easily replicated local development environment with multiple Wordpress installs.
 
 - Follow the instructions over at [VVV](https://github.com/Varying-Vagrant-Vagrants/VVV) to get VirtualBox, Vagrant and VVV going. You can hold off on running `$ vagrant up` for now.
-- Use [auto-site-setup](https://github.com/joeguilmette/auto-site-setup) to create new local WordPress installs and to provision your Vagrant box with Wordmove and other useful tools not included in VVV.
-	- Create a folder `vvv/www/domain.com/` and add the three files, `vvv-hosts`, `vvv-init.sh` and `vvv-nginx.conf`.
-	- Modify each of them to fit your project.
-	- Be careful with `vvv-init.sh` and make sure you read it over and edit all the little details. The good news is you can use wp-cli in there to do whatever the fuck you want. You can even do some fun bash stuff, like clone in a theme, or whatever.
+- Copy over everything from [VVV folder](https://github.com/joeguilmette/ee-vvv-wordmove/tree/master/vvv) to your VVV root folder.
+- I've included an example in the www directory that uses some dummy data. If you need a rundown of how auto site setup works with VVV, check out the [readme].
+- Be careful with `vvv-init.sh` and make sure you read it over and edit all the little details. The good news is you can use wp-cli in there to do whatever the fuck you want. You can even do some fun bash stuff, like clone in a theme, or whatever.
 - If vagrant is up, run `$ vagrant reload --provision`, or just `$ vagrant up --provision` and let it run and it'll create all the sites you've configured.
 - It takes 5-10 mins, longer if it's your first time running the script. It'll have to download a few gigs of files.
 - Once it's up, you can go to whatever domain you've set in the auto-site-setup files and get going.
@@ -259,4 +258,4 @@ Anyway, if you run into memory issues, try creating a swap file before just buyi
 
 - Make sure it gets mounted on startup by adding `/swapfile none swap defaults 0 0` on a new line in `$ sudo vim /etc/fstab`
 
-- If you run in to issues specific to InnoDB, you can also increase the cache size to see if that helps.
+- If you run in to issues specific to InnoDB, you can also increase the cache size to see if that helps.ter

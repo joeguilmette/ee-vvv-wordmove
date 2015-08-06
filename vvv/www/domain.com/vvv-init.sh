@@ -27,7 +27,7 @@ then
 	wp core download 
 	
 	echo "Creating wp-config.php"
-	wp core config --dbname="domain" --dbuser=root --dbpass=root --dbhost="localhost" --dbprefix=wp_
+	wp core config --dbname="domain" --title="Just another VVV install" --dbuser=root --dbpass=root --dbhost="localhost" --dbprefix=wp_
 	
 	echo "Installing WordPress"
 	wp core install --url=domain.dev --admin_user=admin --admin_password=password --admin_email=admin@email.com
