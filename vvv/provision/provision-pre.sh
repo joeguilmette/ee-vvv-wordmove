@@ -19,7 +19,15 @@ else
 fi
 
 # install Ruby 2.0.0 for Wordmove
-bash -l -c "rvm use --default --install 2.0.0"
+if [ $(rvm -v|grep '^2.0.0') ]; then
+
+	echo "Using Ruby 2.0.0"
+
+else
+
+	bash -l -c "rvm use --default --install 2.0.0"
+
+fi
 
 # wordmove install
 wordmove_install="$(gem list wordmove -i)"
