@@ -18,7 +18,7 @@ else
 
 fi
 
-echo 'trying that weird vagrant use command'
+# install Ruby 2.0.0 for Wordmove
 bash -l -c "rvm use --default --install 2.0.0"
 
 # wordmove install
@@ -39,17 +39,17 @@ else
 
 	if [ "$(grep yaml $wordmove_path)" ]; then
 
-		echo "can require yaml"
+		echo "can require YAML"
 
 	else
 
-		echo "can't require yaml"
+		echo "can't require YAML"
 
-		echo "set require yaml"
+		echo "Set require YAML"
 
-		sed -i "7i require\ \'yaml\'" $wordmove_path
+		sed -i "7i require\ \'YAML\'" $wordmove_path
 
-		echo "can require yaml"
+		echo "Can require YAML"
 
 	fi
 fi
