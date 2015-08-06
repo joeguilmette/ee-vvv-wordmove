@@ -1,11 +1,17 @@
  #!/usr/bin/env bash
 
- source /usr/local/rvm/scripts/rvm
+source /home/vagrant/.rvm/scripts/rvm
 
- su vagrant rvm --default use --install $1
+if ! rvm list rubies ruby | grep ruby-$1; then
+	
+	rvm install $1
 
- shift
+fi
 
- if (( $# ))
-	 then su vagrant gem install $@
- fi
+rvm --default use $1
+
+shift
+
+if (( $# ))
+  then gem install $@
+fi

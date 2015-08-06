@@ -2,30 +2,17 @@
 
 if [ $(gem -v|grep '^2.') ]; then
 
-	echo "gem installed"
+	echo "ruby-gem installed"
 
 else
 
+	echo "ruby-gem not installed - installing"
+
 	apt-get install -y ruby-dev
-
-	echo "ruby-dev installed"
-
-	echo "gem not installed"
 
 	gem install rubygems-update
 
 	update_rubygems
-
-fi
-
-# install Ruby 2.0.0 for Wordmove
-if [ $(rvm -v|grep '^2.0.0') ]; then
-
-	echo "Using Ruby 2.0.0"
-
-else
-
-	bash -l -c "rvm use --default --install 2.0.0"
 
 fi
 

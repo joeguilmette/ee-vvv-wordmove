@@ -1,7 +1,9 @@
 #!/usr/bin/env bash
 
-curl -#LO https://rvm.io/mpapis.asc
+if ! type rvm >/dev/null 2>&1; then
 
-gpg --import mpapis.asc
+	curl -sSL https://rvm.io/mpapis.asc | gpg --import -
+	
+	curl -L https://get.rvm.io | bash -s $1
 
-curl -sSL https://get.rvm.io | bash -s $1
+fi

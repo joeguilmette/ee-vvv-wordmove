@@ -39,6 +39,7 @@ then
 	
     wp plugin install --activate wp-local-toolbox
     # configure WPLT
+    # broken
     sed -i "define('WPLT_SERVER','local');" ./wp-config.php
 	sed -i "define('WPLT_ADMINBAR','always');" ./wp-config.php
 	sed -i "define('WPLT_AIRPLANE','true');'" ./wp-config.php
