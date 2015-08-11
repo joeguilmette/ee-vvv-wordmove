@@ -18,6 +18,8 @@ else
 
 	echo 'rvm already installed'
 
+	source /home/vagrant/.rvm/scripts/rvm
+
 fi
 
 if ! rvm list rubies ruby | grep ruby-$1; then
@@ -40,11 +42,11 @@ else
 
 	gemdir 2.0.0
 
-	echo 'gem: --no-rdoc --no-ri' > ~/.gemrc
-
 	gem install rubygems-update --no-rdoc --no-ri
 
 	update_rubygems
+
+	echo 'gem: --no-rdoc --no-ri' > ~/.gemrc
 
 fi
 
