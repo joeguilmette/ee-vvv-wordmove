@@ -47,12 +47,12 @@ then
 	# feature to work. Read more here: https://github.com/joeguilmette/wp-local-toolbox
 	mkdir wp-content/mu-plugins
 	curl -sS https://downloads.wordpress.org/plugin/wp-local-toolbox.zip > wp-content/mu-plugins/wp-local-toolbox.zip
-	unzip wp-content/mu-plugins/wp-local-toolbox.zip -dq wp-content/mu-plugins/
+	unzip -q wp-content/mu-plugins/wp-local-toolbox.zip -d wp-content/mu-plugins/
 	rm wp-content/mu-plugins/wp-local-toolbox.zip
 	mv wp-content/mu-plugins/wp-local-toolbox/* wp-content/mu-plugins/
 	rm -rf wp-content/mu-plugins/wp-local-toolbox/
 	mv wp-content/mu-plugins/read* wp-content/mu-plugins/toolbox/
-	mv wp-content/mu-plugins/LICENSE wp-content/mu-plugins/toolbox/
+	mv wp-content/mu-plugins/LICENSE wp-content/mu-plugins/toolbox/LICENSE
 	# I'm pretty sure we sent a man to the moon with fewer lines of code
 	# than it takes me to unpack a zip file. Whatever. It works.
 
