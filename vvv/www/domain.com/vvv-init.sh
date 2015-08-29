@@ -31,7 +31,14 @@ then
 	wp core download 
 	
 	echo "Creating wp-config.php"
-	wp core config --dbname="domain" --dbuser=root --dbpass=root --dbhost="localhost" --dbprefix=wp_
+	wp core config --dbname="domain" --dbuser=root --dbpass=root --dbhost="localhost" --dbprefix=wp_ --extra-php <<PHP
+define( 'WP_DEBUG', true );
+
+/** WP Local Toolbox config */
+define('WPLT_SERVER','local');
+define('WPLT_ADMINBAR','always');
+define('WPLT_AIRPLANE','true');
+PHP
 	
 	echo "Installing WordPress"
 	wp core install --title="Just another VVV install" --url=domain.dev --admin_user=admin --admin_password=password --admin_email=admin@email.com
@@ -49,18 +56,14 @@ then
 	curl -sS https://downloads.wordpress.org/plugin/wp-local-toolbox.zip > wp-content/mu-plugins/wp-local-toolbox.zip
 	unzip -q wp-content/mu-plugins/wp-local-toolbox.zip -d wp-content/mu-plugins/
 	rm wp-content/mu-plugins/wp-local-toolbox.zip
-	mv wp-content/mu-plugins/wp-local-toolbox/* wp-content/mu-plugins/
+
+	mv wp-content/mu-plugins/wp-local-toolbox/toolbox/ wp-content/mu-plugins/toolbox/
+	mv wp-content/mu-plugins/wp-local-toolbox/wplt-loader.php wp-content/mu-plugins/wplt-loader.php
+	mv wp-content/mu-plugins/wp-local-toolbox/read* wp-content/mu-plugins/toolbox/
+	mv wp-content/mu-plugins/wp-local-toolbox/LICENSE wp-content/mu-plugins/toolbox/LICENSE
 	rm -rf wp-content/mu-plugins/wp-local-toolbox/
-	mv wp-content/mu-plugins/read* wp-content/mu-plugins/toolbox/
-	mv wp-content/mu-plugins/LICENSE wp-content/mu-plugins/toolbox/LICENSE
 	# I'm pretty sure we sent a man to the moon with fewer lines of code
 	# than it takes me to unpack a zip file. Whatever. It works.
-
-    # WPLT configuration
-    sed -i "3i/** WP Local Toolbox config */" wp-config.php
-    sed -i "4idefine('WPLT_SERVER','local');" wp-config.php
-	sed -i "5idefine('WPLT_ADMINBAR','always');" wp-config.php 
-	sed -i "6idefine('WPLT_AIRPLANE','true');" wp-config.php
 
 	echo "Goodbye Dolly"
 	wp plugin uninstall hello

@@ -1,7 +1,7 @@
  #!/usr/bin/env bash
 
 echo '===============START==============='
-echo '|         install-ruby.sh         |'
+echo '|         install-wordmove.sh         |'
 echo '==================================='
 
 if ! type rvm >/dev/null 2>&1; then
@@ -83,5 +83,5 @@ else
 fi
 
 echo '==================================='
-echo '|         install-ruby.sh         |'
+echo '|         install-wordmove.sh         |'
 echo '================END================'
