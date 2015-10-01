@@ -44,7 +44,7 @@ PHP
 	wp core install --title="Just another VVV install" --url=domain.dev --admin_user=admin --admin_password=password --admin_email=admin@email.com
 	
 	echo "Installing Plugins"
-	# You can install othe rplugins with wp-cli using this command:
+	# You can install other plugins with wp-cli using this command:
 	# wp plugin install wp-local-toolbox
 	# or
 	# wp plugin install wordpress-seo
