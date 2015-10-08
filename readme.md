@@ -6,6 +6,35 @@ A step by step guide to:
 - Push and pull Wordpress installations, database and all, between local, staging and production environments.
 - Optimize and harden Wordpress with very little configuration.
 
+#Table of Contents
+
+- [Local development with VVV and OSX](#local-development-with-vvv-and-osx)
+- [Staging and production servers with Ubuntu and EasyEngine](#staging-and-productions-servers-with-ubuntu-and-easyengine)
+	- [Setting up and securing Ubuntu 14.04x64 on DigitalOcean](#setting-up-and-securing-ubuntu-1404x64-on-digitalocean)
+		- [Conifiguring Monit](#conifiguring-monit)
+- [EasyEngine Monit settings](#easyengine-monit-settings)
+	- [DigitalOcean Snapshots](#digitalocean-snapshots)
+		- [Create Snapshot](#create-snapshot)
+		- [Deploy a Snapshot](#deploy-a-snapshot)
+	- [Installing and configuring EasyEngine](#installing-and-configuring-easyengine)
+	- [Creating new Wordpress installations in production](#creating-new-wordpress-installations-in-production)
+- [Migrating WordPress from one of your local Varying Vagrant Vagrants to your remote Digital Ocean server](#migrating-wordpress-from-one-of-your-local-varying-vagrant-vagrants-to-your-remote-digital-ocean-server)
+		- [Installing Wordmove](#installing-wordmove)
+		- [Configuring Wordmove](#configuring-wordmove)
+		- [This part is really important](#this-part-is-really-important)
+		- [Actually using Wordmove](#actually-using-wordmove)
+		- [Troubleshooting a borked migration](#troubleshooting-a-borked-migration)
+	- [Telling WP the new site url via wp-cli](#telling-wp-the-new-site-url-via-wp-cli)
+	- [Importing a remote database manually](#importing-a-remote-database-manually)
+- [Hardening WordPress](#hardening-wordpress)
+	- [Move wp-config.php back a dir out of the site root](#move-wp-configphp-back-a-dir-out-of-the-site-root)
+	- [Change db prefix](#change-db-prefix)
+	- [Change wp-content folder](#change-wp-content-folder)
+	- [Permissions](#permissions)
+	- [Configure ufw, fail2ban and rkhunter](#configure-ufw-fail2ban-and-rkhunter)
+- [Optimizing WordPress](#optimizing-wordpress)
+	- [Solving memory issues with a swap file](#solving-memory-issues-with-a-swap-file)
+
 #Local development with VVV and OSX
 Use [VVV](https://github.com/Varying-Vagrant-Vagrants/VVV) and [these provision scripts](https://github.com/joeguilmette/ee-vvv-wordmove/tree/master/vvv) to create an easily replicated local development environment with multiple Wordpress installs.
 
@@ -15,7 +44,7 @@ Use [VVV](https://github.com/Varying-Vagrant-Vagrants/VVV) and [these provision 
 - Run `$ vagrant reload --provision` and let it run and it'll set up your create all the sites you've configured with auto site setup.
 - **Congrats on getting your local environment going.**
 
-#Staging and productions servers with Ubuntu and EasyEngine
+#Staging and production servers with Ubuntu and EasyEngine
 EasyEngine provides a full Wordpress stack along with one line Wordpress installation and configuration. This guide was written using Ubuntu 14.04x64, so YMMV with other versions.
 
 ##Setting up and securing Ubuntu 14.04x64 on DigitalOcean
